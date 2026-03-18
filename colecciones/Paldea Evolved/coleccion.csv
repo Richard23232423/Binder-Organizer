@@ -1,0 +1,280 @@
+#,nombre,rareza
+001,Hoppip,Common
+002,Skiploom,Uncommon
+003,Jumpluff,Rare
+004,Pineco,Common
+005,Forretress ex,Double Rare
+006,Heracross,Uncommon
+007,Tropius,Common
+008,Combee,Common
+009,Vespiquen,Uncommon
+010,Snover,Common
+011,Abomasnow,Rare
+012,Sprigatito,Common
+013,Sprigatito,Common
+014,Floragato,Uncommon
+015,Meowscarada ex,Double Rare
+016,Tarountula,Common
+017,Tarountula,Common
+018,Spidops,Uncommon
+019,Nymble,Common
+020,Nymble,Common
+021,Lokix,Rare
+022,Bramblin,Common
+023,Bramblin,Common
+024,Brambleghast,Uncommon
+025,Rellor,Common
+026,Rellor,Common
+027,Wo-Chien ex,Double Rare
+028,Tauros de Paldea,Uncommon
+029,Fletchinder,Uncommon
+030,Talonflame,Rare
+031,Litleo,Common
+032,Pyroar,Rare
+033,Oricorio,Rare
+034,Fuecoco,Common
+035,Fuecoco,Common
+036,Crocalor,Uncommon
+037,Skeledirge ex,Double Rare
+038,Charcadet,Common
+039,Charcadet,Common
+040,Chi-Yu ex,Double Rare
+041,Tauros de Paldea,Uncommon
+042,Magikarp,Common
+043,Gyarados,Rare
+044,Marill,Common
+045,Azumarill,Uncommon
+046,Delibird,Common
+047,Luvdisc,Common
+048,Eiscue,Uncommon
+049,Quaxly,Common
+050,Quaxly,Common
+051,Quaxwell,Uncommon
+052,Quaquaval ex,Double Rare
+053,Cetoddle,Common
+054,Cetoddle,Common
+055,Cetitan,Uncommon
+056,Veluza,Rare
+057,Frigibax,Common
+058,Frigibax,Common
+059,Arctibax,Uncommon
+060,Baxcalibur,Rare
+061,Chien-Pao ex,Double Rare
+062,Pikachu,Common
+063,Pikachu ex,Double Rare
+064,Raichu,Uncommon
+065,Magnemite,Common
+066,Voltorb,Common
+067,Electrode,Uncommon
+068,Shinx,Common
+069,Shinx,Common
+070,Luxio,Uncommon
+071,Luxray,Rare
+072,Pincurchin,Common
+073,Pincurchin,Uncommon
+074,Pawmi,Common
+075,Pawmo,Uncommon
+076,Pawmot,Rare
+077,Tadbulb,Common
+078,Tadbulb,Common
+079,Bellibolt ex,Double Rare
+080,Wattrel,Common
+081,Wattrel,Common
+082,Kilowattrel,Uncommon
+083,Jigglypuff,Common
+084,Wigglytuff,Rare
+085,Slowpoke,Common
+086,Slowking ex,Double Rare
+087,Misdreavus,Common
+088,Mismagius,Uncommon
+089,Spiritomb,Rare
+090,Gothita,Common
+091,Gothorita,Uncommon
+092,Gothitelle,Uncommon
+093,Dedenne ex,Double Rare
+094,Oranguru,Uncommon
+095,Sandygast,Common
+096,Palossand,Uncommon
+097,Mimikyu,Rare
+098,Ceruledge,Rare
+099,Rabsca,Rare
+100,Tinkatink,Common
+101,Tinkatink,Common
+102,Tinkatink,Common
+103,Tinkatuff,Uncommon
+104,Tinkatuff,Uncommon
+105,Tinkaton,Rare
+106,Mankey,Common
+107,Primeape,Uncommon
+108,Tauros de Paldea,Uncommon
+109,Sudowoodo,Uncommon
+110,Larvitar,Common
+111,Pupitar,Uncommon
+112,Makuhita,Common
+113,Hariyama,Rare
+114,Croagunk,Common
+115,Toxicroak,Uncommon
+116,Rockruff,Common
+117,Lycanroc ex,Double Rare
+118,Passimian,Uncommon
+119,Falinks,Common
+120,Nacli,Common
+121,Nacli,Common
+122,Naclstack,Uncommon
+123,Garganacl,Rare
+124,Glimmet,Common
+125,Glimmet,Common
+126,Glimmora,Rare
+127,Ting-Lu ex,Double Rare
+128,Wooper de Paldea,Common
+129,Wooper de Paldea,Common
+130,Clodsire de Paldea ex,Double Rare
+131,Murkrow,Common
+132,Honchkrow,Uncommon
+133,Sneasel,Common
+134,Weavile,Rare
+135,Tyranitar,Rare
+136,Sableye,Rare
+137,Seviper,Uncommon
+138,Deino,Common
+139,Zweilous,Uncommon
+140,Hydreigon,Rare
+141,Maschiff,Common
+142,Maschiff,Common
+143,Mabosstiff,Uncommon
+144,Shroodle,Common
+145,Shroodle,Common
+146,Grafaiai,Uncommon
+147,Bombirdier,Uncommon
+148,Corviknight,Uncommon
+149,Cufant,Common
+150,Copperajah ex,Double Rare
+151,Orthworm,Rare
+152,Noibat,Common
+153,Noivern ex,Double Rare
+154,Girafarig,Common
+155,Farigiraf,Uncommon
+156,Dunsparce,Common
+157,Dudunsparce,Uncommon
+158,Wingull,Common
+159,Pelipper,Uncommon
+160,Slakoth,Common
+161,Vigoroth,Uncommon
+162,Slaking,Rare
+163,Fletchling,Common
+164,Rookidee,Common
+165,Corvisquire,Uncommon
+166,Tandemaus,Common
+167,Tandemaus,Common
+168,Maushold,Uncommon
+169,Squawkabilly ex,Double Rare
+170,Flamigo,Uncommon
+171,Pueblo Altamía,Rare
+172,Órdenes de Jefes (Ghechis),Rare
+173,Amuleto de Bravura,Uncommon
+174,Montaña Nevada Funesta,Uncommon
+175,Páramo Funesto,Uncommon
+176,Cinturón Elección,Uncommon
+177,Clavel,Uncommon
+178,Dron de Reparto,Uncommon
+179,Kendra,Uncommon
+180,Pegaso,Uncommon
+181,Batido Combate,Uncommon
+182,Anán,Uncommon
+183,Super Ball,Uncommon
+184,Grusha,Uncommon
+185,e-Nigma,Uncommon
+186,Sala de Entrenamiento,Uncommon
+187,Hugo,Uncommon
+188,Supercaña,Uncommon
+189,Recuperación Superior de Energía,Uncommon
+190,Energía Propulsión,Uncommon
+191,Energía Luminosa,Uncommon
+192,Energía Inversión,Uncommon
+193,Energía Terapéutica,Uncommon
+194,Heracross,Illustration Rare
+195,Tropius,Illustration Rare
+196,Sprigatito,Illustration Rare
+197,Floragato,Illustration Rare
+198,Bramblin,Illustration Rare
+199,Fletchinder,Illustration Rare
+200,Pyroar,Illustration Rare
+201,Fuecoco,Illustration Rare
+202,Crocalor,Illustration Rare
+203,Magikarp,Illustration Rare
+204,Marill,Illustration Rare
+205,Eiscue,Illustration Rare
+206,Quaxly,Illustration Rare
+207,Quaxwell,Illustration Rare
+208,Frigibax,Illustration Rare
+209,Arctibax,Illustration Rare
+210,Baxcalibur,Illustration Rare
+211,Raichu,Illustration Rare
+212,Mismagius,Illustration Rare
+213,Gothorita,Illustration Rare
+214,Sandygast,Illustration Rare
+215,Rabsca,Illustration Rare
+216,Tinkatink,Illustration Rare
+217,Tinkatuff,Illustration Rare
+218,Tauros de Paldea,Illustration Rare
+219,Sudowoodo,Illustration Rare
+220,Nacli,Illustration Rare
+221,Wooper de Paldea,Illustration Rare
+222,Tyranitar,Illustration Rare
+223,Grafaiai,Illustration Rare
+224,Orthworm,Illustration Rare
+225,Rookidee,Illustration Rare
+226,Maushold,Illustration Rare
+227,Flamigo,Illustration Rare
+228,Farigiraf,Illustration Rare
+229,Dudunsparce,Illustration Rare
+230,Forretress ex,Ultra Rare
+231,Meowscarada ex,Ultra Rare
+232,Wo-Chien ex,Ultra Rare
+233,Skeledirge ex,Ultra Rare
+234,Chi-Yu ex,Ultra Rare
+235,Quaquaval ex,Ultra Rare
+236,Chien-Pao ex,Ultra Rare
+237,Bellibolt ex,Ultra Rare
+238,Slowking ex,Ultra Rare
+239,Dedenne ex,Ultra Rare
+240,Tinkaton ex,Ultra Rare
+241,Lycanroc ex,Ultra Rare
+242,Annihilape ex,Ultra Rare
+243,Ting-Lu ex,Ultra Rare
+244,Clodsire de Paldea ex,Ultra Rare
+245,Copperajah ex,Ultra Rare
+246,Noivern ex,Ultra Rare
+247,Squawkabilly ex,Ultra Rare
+248,Órdenes de Jefes (Ghechis),Ultra Rare
+249,Clavel,Ultra Rare
+250,Kendra,Ultra Rare
+251,Pegaso,Ultra Rare
+252,Anán,Ultra Rare
+253,Grusha,Ultra Rare
+254,e-Nigma,Ultra Rare
+255,Hugo,Ultra Rare
+256,Meowscarada ex,Special Illustration Rare
+257,Wo-Chien ex,Special Illustration Rare
+258,Skeledirge ex,Special Illustration Rare
+259,Chi-Yu ex,Special Illustration Rare
+260,Quaquaval ex,Special Illustration Rare
+261,Chien-Pao ex,Special Illustration Rare
+262,Tinkaton ex,Special Illustration Rare
+263,Ting-Lu ex,Special Illustration Rare
+264,Squawkabilly ex,Special Illustration Rare
+265,Órdenes de Jefes (Ghechis),Special Illustration Rare
+266,Kendra,Special Illustration Rare
+267,Anán,Special Illustration Rare
+268,Grusha,Special Illustration Rare
+269,e-Nigma,Special Illustration Rare
+270,Hugo,Special Illustration Rare
+271,Meowscarada ex,Hyper Rare
+272,Skeledirge ex,Hyper Rare
+273,Quaquaval ex,Hyper Rare
+274,Chien-Pao ex,Hyper Rare
+275,Ting-Lu ex,Hyper Rare
+276,Supercaña,Hyper Rare
+277,Recuperación Superior de Energía,Hyper Rare
+278,Energía Básica Planta,Hyper Rare
+279,Energía Básica Agua,Hyper Rare
