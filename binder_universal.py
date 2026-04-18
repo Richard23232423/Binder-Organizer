@@ -156,7 +156,7 @@ class BinderUniversal:
         # Título
         tk.Label(
             main_frame,
-            text="📚 ORGANIZADOR DE BINDERS",
+            text="ORGANIZADOR DE BINDERS",
             font=("Arial", 28, "bold"),
             bg="#2c3e50",
             fg="#ecf0f1"
@@ -169,7 +169,7 @@ class BinderUniversal:
             # Frame para binders existentes
             existentes_frame = tk.LabelFrame(
                 main_frame,
-                text="📁 TUS BINDERS GUARDADOS",
+                text="TUS BINDERS GUARDADOS",
                 font=("Arial", 16, "bold"),
                 bg="#34495e",
                 fg="#ecf0f1",
@@ -194,7 +194,7 @@ class BinderUniversal:
                 
                 tk.Label(
                     card,
-                    text=f"📊 {binder_info['coleccion']}",
+                    text=f"{binder_info['coleccion']}",
                     font=("Arial", 12, "bold"),
                     bg="#2c3e50",
                     fg="#ecf0f1"
@@ -218,7 +218,7 @@ class BinderUniversal:
                 
                 tk.Button(
                     card,
-                    text="🔍 ABRIR",
+                    text="ABRIR",
                     command=lambda n=binder_nombre: self.abrir_binder_guardado(n),
                     bg="#3498db",
                     fg="white",
@@ -345,7 +345,7 @@ class BinderUniversal:
         # Título
         tk.Label(
             main_frame,
-            text="📁 SELECCIONA UNA COLECCIÓN",
+            text="SELECCIONA UNA COLECCIÓN",
             font=("Arial", 24, "bold"),
             bg="#2c3e50",
             fg="#ecf0f1"
@@ -361,7 +361,7 @@ class BinderUniversal:
         if not colecciones:
             tk.Label(
                 colecciones_frame,
-                text="⚠️ No hay colecciones disponibles\n\n"
+                text="No hay colecciones disponibles\n\n"
                      "Crea una carpeta en 'colecciones/' con un archivo 'coleccion.csv'",
                 font=("Arial", 12),
                 bg="#34495e",
@@ -372,7 +372,7 @@ class BinderUniversal:
             # Botón para crear ejemplo
             tk.Button(
                 colecciones_frame,
-                text="✨ Crear Colección de Ejemplo",
+                text=" Crear Colección de Ejemplo",
                 command=self.create_example_collection,
                 bg="#27ae60",
                 fg="white",
@@ -424,7 +424,7 @@ class BinderUniversal:
             
             tk.Label(
                 card,
-                text=f"📊 {total_items} cartas",
+                text=f"{total_items} cartas",
                 font=("Arial", 12),
                 bg="#2c3e50",
                 fg="#f39c12"
@@ -432,7 +432,7 @@ class BinderUniversal:
             
             tk.Button(
                 card,
-                text="🔧 USAR ESTA",
+                text="USAR ESTA",
                 command=lambda r=ruta, n=nombre, t=total_items: self.configurar_binder(r, n, t),
                 bg="#9b59b6",
                 fg="white",
@@ -489,23 +489,23 @@ class BinderUniversal:
             pass
         return count
     
-    # PANTALLA 3: CONFIGURACIÓN DEL BINDER (AHORA MÁS GRANDE)
+    # PANTALLA 3: CONFIGURACIÓN DEL BINDER
     def configurar_binder(self, ruta_coleccion, nombre_coleccion, total_items):
-        """Ventana para configurar el nuevo binder - MÁS GRANDE"""
+        """Ventana para configurar el nuevo binder"""
         config_window = tk.Toplevel(self.root)
         config_window.title(f"Configurar Binder - {nombre_coleccion}")
-        config_window.geometry("600x700")  # 🔹 MÁS GRANDE (antes 500x550)
+        config_window.geometry("500x700") 
         config_window.configure(bg="#34495e")
         config_window.transient(self.root)
         config_window.grab_set()
         
-        # Centrar
+        # Centrado
         config_window.update_idletasks()
         x = (config_window.winfo_screenwidth() // 2) - (600 // 2)
         y = (config_window.winfo_screenheight() // 2) - (700 // 2)
         config_window.geometry(f'+{x}+{y}')
         
-        # Canvas con scroll por si acaso
+        # scroll
         canvas = tk.Canvas(config_window, bg="#34495e", highlightthickness=0)
         scrollbar = tk.Scrollbar(config_window, orient="vertical", command=canvas.yview)
         scrollable_frame = tk.Frame(canvas, bg="#34495e")
@@ -527,11 +527,11 @@ class BinderUniversal:
         # Título
         tk.Label(
             main_frame,
-            text="🔧 CONFIGURAR BINDER",
+            text="CONFIGURAR BINDER",
             font=("Arial", 20, "bold"),
             bg="#34495e",
             fg="#ecf0f1"
-        ).pack(pady=(0, 20))
+        ).pack(pady=(0, 5))
         
         tk.Label(
             main_frame,
@@ -543,19 +543,19 @@ class BinderUniversal:
         
         tk.Label(
             main_frame,
-            text=f"📊 {total_items} cartas en total",
+            text=f" {total_items} cartas en total",
             font=("Arial", 16, "bold"),
             bg="#34495e",
             fg="#2ecc71"
-        ).pack(pady=(0, 30))
+        ).pack(pady=(0, 20))
         
         # Frame configuración
         config_frame = tk.Frame(main_frame, bg="#2c3e50", padx=30, pady=30)
-        config_frame.pack(fill="x", pady=20)
+        config_frame.pack(fill="x", pady=10)
         
         # Filas
         row_frame = tk.Frame(config_frame, bg="#2c3e50")
-        row_frame.pack(fill="x", pady=15)
+        row_frame.pack(fill="x", pady=5)
         
         tk.Label(
             row_frame,
@@ -704,7 +704,7 @@ class BinderUniversal:
         
         tk.Button(
             btn_frame,
-            text="✅ CREAR BINDER",
+            text="CREAR BINDER",
             command=crear_binder,
             bg="#27ae60",
             fg="white",
@@ -715,7 +715,7 @@ class BinderUniversal:
         
         tk.Button(
             btn_frame,
-            text="❌ CANCELAR",
+            text="CANCELAR",
             command=config_window.destroy,
             bg="#e74c3c",
             fg="white",
@@ -789,7 +789,7 @@ class BinderUniversal:
         nombre_coleccion = self.config_binder.get('nombre_coleccion', 'Colección')
         tk.Label(
             header_frame,
-            text=f"📚 {nombre_coleccion}",
+            text=f"{nombre_coleccion}",
             font=("Arial", 22, "bold"),
             bg="#2c3e50",
             fg="#ecf0f1"
@@ -798,7 +798,7 @@ class BinderUniversal:
         # Botón para volver al inicio
         tk.Button(
             header_frame,
-            text="🏠 Volver al Inicio",
+            text="Volver al Inicio",
             command=self.volver_al_inicio,
             bg="#7f8c8d",
             fg="white",
@@ -848,7 +848,7 @@ class BinderUniversal:
         # Botón limpiar
         tk.Button(
             top_frame,
-            text="🗑️ Limpiar Todo",
+            text="Limpiar Todo",
             command=self.clear_all_markers,
             bg="#e74c3c",
             fg="white",
@@ -883,7 +883,7 @@ class BinderUniversal:
         
         tk.Button(
             btn_frame,
-            text="🔍 Buscar",
+            text="Buscar",
             command=self.find_position,
             bg="#3498db",
             fg="white",
