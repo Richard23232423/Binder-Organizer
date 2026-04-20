@@ -242,7 +242,7 @@ class BinderUniversal:
         
         tk.Button(
             nuevo_frame,
-            text="➕ CREAR NUEVO BINDER",
+            text="+ CREAR NUEVO BINDER",
             command=self.show_colecciones_disponibles,
             bg="#27ae60",
             fg="white",
@@ -410,13 +410,10 @@ class BinderUniversal:
                 borderwidth=2
             )
             card.grid(row=row, column=col, padx=15, pady=15, sticky="nsew")
-            
-            # Icono
-            icono = "🎴" if "pokemon" in nombre.lower() else "🃏" if "magic" in nombre.lower() else "📚"
-            
+                        
             tk.Label(
                 card,
-                text=f"{icono} {nombre}",
+                text=f"{nombre}",
                 font=("Arial", 14, "bold"),
                 bg="#2c3e50",
                 fg="#ecf0f1"
@@ -619,7 +616,7 @@ class BinderUniversal:
                 espacios_pagina = espacios_lado * 2
                 paginas = (total_items + espacios_pagina - 1) // espacios_pagina
                 
-                calc_text = f"📐 CONFIGURACIÓN SELECCIONADA:\n\n"
+                calc_text = f" CONFIGURACIÓN SELECCIONADA:\n\n"
                 calc_text += f"• {rows} filas × {cols} columnas = {espacios_lado} espacios por lado\n"
                 calc_text += f"• {espacios_pagina} espacios por página\n"
                 calc_text += f"• {paginas} páginas totales"
@@ -770,7 +767,7 @@ class BinderUniversal:
         with open(os.path.join(ejemplo_path, "coleccion.csv"), 'w', encoding='utf-8') as f:
             f.write(csv_content)
         
-        messagebox.showinfo("Creada", "✅ Colección de ejemplo creada")
+        messagebox.showinfo("Creada", " Colección de ejemplo creada")
         self.show_colecciones_disponibles()
     
     # PANTALLA 4: INTERFAZ PRINCIPAL DEL BINDER
@@ -894,7 +891,7 @@ class BinderUniversal:
         
         tk.Button(
             btn_frame,
-            text="✅ Marcar",
+            text=" Marcar",
             command=self.find_and_mark,
             bg="#9b59b6",
             fg="white",
@@ -905,7 +902,7 @@ class BinderUniversal:
         
         tk.Button(
             btn_frame,
-            text="❌ Desmarcar",
+            text=" Desmarcar",
             command=self.unmark_current,
             bg="#e67e22",
             fg="white",
