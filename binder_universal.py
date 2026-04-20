@@ -5,6 +5,7 @@ import os
 import csv
 import sys
 from pathlib import Path
+from datetime import datetime
 
 class BinderUniversal:
     def __init__(self, root):
@@ -31,14 +32,234 @@ class BinderUniversal:
         self.datos_coleccion = {}
         self.occupied_slots = {}
         self.search_var = tk.StringVar()
-        self.current_page = 1
+        self.current_hoja = 1  # Cambiado: current_page -> current_hoja
         
-        self.root.configure(bg="#2c3e50")
+        # NUEVOS COLORES
+        self.root.configure(bg="#121314")
         
         # Cargar binder activo si existe
         self.cargar_binder_activo()
     
-    # Gestión de binders activos
+    # ============================================
+    # FUNCIÓN DE FALTANTES
+    # ============================================
+    def get_faltantes(self):
+        """Calcula los items que faltan (no están marcados)"""
+        faltantes = []
+        
+        marcados = set()
+        for (hoja, pos) in self.occupied_slots.keys():
+            abs_num = (hoja - 1) * self.spaces_per_hoja + pos
+            if abs_num <= self.total_slots:
+                marcados.add(abs_num)
+        
+        for num in range(1, self.total_slots + 1):
+            if num not in marcados:
+                if num in self.datos_coleccion:
+                    nombre = self.datos_coleccion[num]['nombre']
+                    faltantes.append({
+                        'numero': num,
+                        'nombre': nombre,
+                        'hoja': (num - 1) // self.spaces_per_hoja + 1,
+                        'posicion': ((num - 1) % self.spaces_per_hoja) + 1
+                    })
+                else:
+                    faltantes.append({
+                        'numero': num,
+                        'nombre': f"Item #{num}",
+                        'hoja': (num - 1) // self.spaces_per_hoja + 1,
+                        'posicion': ((num - 1) % self.spaces_per_hoja) + 1
+                    })
+        
+        return faltantes
+    
+    def mostrar_faltantes(self):
+        """Abre una ventana con la lista de items faltantes"""
+        faltantes = self.get_faltantes()
+        
+        if not faltantes:
+            messagebox.showinfo("Completado", "¡Felicidades! ¡No te falta ningún item!")
+            return
+        
+        faltantes_window = tk.Toplevel(self.root)
+        nombre_coleccion = self.config_binder.get('nombre_coleccion', 'Colección')
+        faltantes_window.title(f"Items Faltantes - {nombre_coleccion} ({len(faltantes)} pendientes)")
+        faltantes_window.geometry("550x650")
+        faltantes_window.configure(bg="#191A1B")
+        
+        faltantes_window.update_idletasks()
+        x = (faltantes_window.winfo_screenwidth() // 2) - (550 // 2)
+        y = (faltantes_window.winfo_screenheight() // 2) - (650 // 2)
+        faltantes_window.geometry(f'+{x}+{y}')
+        
+        main_frame = tk.Frame(faltantes_window, bg="#191A1B", padx=15, pady=15)
+        main_frame.pack(fill="both", expand=True)
+        
+        tk.Label(
+            main_frame,
+            text=f"ITEMS FALTANTES",
+            font=("Arial", 16, "bold"),
+            bg="#191A1B",
+            fg="#e74c3c"
+        ).pack(pady=(0, 5))
+        
+        tk.Label(
+            main_frame,
+            text=f"Te faltan {len(faltantes)} items para completar la colección",
+            font=("Arial", 11),
+            bg="#191A1B",
+            fg="#f39c12"
+        ).pack(pady=(0, 15))
+        
+        list_frame = tk.Frame(main_frame, bg="#2c3e50")
+        list_frame.pack(fill="both", expand=True)
+        
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side="right", fill="y")
+        
+        listbox = tk.Listbox(
+            list_frame,
+            font=("Courier New", 10),
+            bg="#2c3e50",
+            fg="#ecf0f1",
+            selectbackground="#3498db",
+            yscrollcommand=scrollbar.set,
+            height=25
+        )
+        listbox.pack(side="left", fill="both", expand=True)
+        scrollbar.config(command=listbox.yview)
+        
+        for item in faltantes:
+            texto = f"#{item['numero']:03d} - {item['nombre']:<25} 📍 Hoja {item['hoja']}, Pos {item['posicion']}"
+            listbox.insert(tk.END, texto)
+        
+        btn_frame = tk.Frame(main_frame, bg="#191A1B")
+        btn_frame.pack(pady=15)
+        
+        def copiar_lista():
+            texto_completo = ""
+            for item in faltantes:
+                texto_completo += f"#{item['numero']:03d} - {item['nombre']}\n"
+            
+            faltantes_window.clipboard_clear()
+            faltantes_window.clipboard_append(texto_completo)
+            messagebox.showinfo("Copiado", "Lista copiada al portapapeles", parent=faltantes_window)
+        
+        tk.Button(
+            btn_frame,
+            text="Copiar Lista",
+            command=copiar_lista,
+            bg="#27ae60",
+            fg="white",
+            font=("Arial", 10),
+            padx=15,
+            pady=5
+        ).pack(side="left", padx=5)
+        
+        def exportar_lista():
+            nombre_archivo = f"faltantes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+            
+            with open(nombre_archivo, 'w', encoding='utf-8') as f:
+                f.write(f"Items Faltantes - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Colección: {nombre_coleccion}\n")
+                f.write(f"Total: {len(faltantes)} items\n")
+                f.write("="*50 + "\n\n")
+                
+                for item in faltantes:
+                    f.write(f"#{item['numero']:03d} - {item['nombre']}\n")
+                    f.write(f"  → Hoja {item['hoja']}, Posición {item['posicion']}\n\n")
+            
+            messagebox.showinfo("Exportado", f"Lista exportada a:\n{nombre_archivo}", parent=faltantes_window)
+        
+        tk.Button(
+            btn_frame,
+            text="Exportar",
+            command=exportar_lista,
+            bg="#9b59b6",
+            fg="white",
+            font=("Arial", 10),
+            padx=15,
+            pady=5
+        ).pack(side="left", padx=5)
+        
+        def buscar_faltante():
+            busqueda = tk.simpledialog.askstring(
+                "Buscar", 
+                "Ingresa número o nombre del item:",
+                parent=faltantes_window
+            )
+            if busqueda:
+                for i, item in enumerate(faltantes):
+                    if busqueda.isdigit():
+                        if item['numero'] == int(busqueda):
+                            listbox.selection_clear(0, tk.END)
+                            listbox.selection_set(i)
+                            listbox.see(i)
+                            listbox.activate(i)
+                            return
+                    else:
+                        if busqueda.lower() in item['nombre'].lower():
+                            listbox.selection_clear(0, tk.END)
+                            listbox.selection_set(i)
+                            listbox.see(i)
+                            listbox.activate(i)
+                            return
+                
+                messagebox.showinfo("No encontrado", f"'{busqueda}' no está en la lista de faltantes", parent=faltantes_window)
+        
+        tk.Button(
+            btn_frame,
+            text="Buscar",
+            command=buscar_faltante,
+            bg="#3498db",
+            fg="white",
+            font=("Arial", 10),
+            padx=15,
+            pady=5
+        ).pack(side="left", padx=5)
+        
+        def ir_a_item():
+            seleccion = listbox.curselection()
+            if seleccion:
+                item = faltantes[seleccion[0]]
+                faltantes_window.destroy()
+                self._find_position_by_number(item['numero'])
+        
+        tk.Button(
+            btn_frame,
+            text="Ir al Item",
+            command=ir_a_item,
+            bg="#e67e22",
+            fg="white",
+            font=("Arial", 10),
+            padx=15,
+            pady=5
+        ).pack(side="left", padx=5)
+        
+        tk.Button(
+            btn_frame,
+            text="Cerrar",
+            command=faltantes_window.destroy,
+            bg="#7f8c8d",
+            fg="white",
+            font=("Arial", 10),
+            padx=15,
+            pady=5
+        ).pack(side="left", padx=5)
+        
+        tk.Label(
+            main_frame,
+            text="Tip: Haz doble click en un item para ir a su posición",
+            font=("Arial", 9),
+            bg="#191A1B",
+            fg="#7f8c8d"
+        ).pack(pady=(10, 0))
+        
+        listbox.bind('<Double-Button-1>', lambda e: ir_a_item())
+    
+    # ============================================
+    # GESTIÓN DE BINDERS
+    # ============================================
     def cargar_binder_activo(self):
         """Carga el último binder activo si existe"""
         activo_path = os.path.join(self.binders_path, "activo.json")
@@ -51,18 +272,15 @@ class BinderUniversal:
                 self.binder_actual = data.get('nombre')
                 ruta_binder = os.path.join(self.binders_path, self.binder_actual)
                 
-                # Cargar configuración
                 config_path = os.path.join(ruta_binder, "config.json")
                 if os.path.exists(config_path):
                     with open(config_path, 'r', encoding='utf-8') as f:
                         self.config_binder = json.load(f)
                     
-                    # Cargar datos de la colección
                     self.datos_coleccion = self.cargar_datos_coleccion(
                         self.config_binder.get('ruta_coleccion', '')
                     )
                     
-                    # Cargar progreso
                     progreso_path = os.path.join(ruta_binder, "progreso.json")
                     if os.path.exists(progreso_path):
                         with open(progreso_path, 'r') as f:
@@ -73,27 +291,24 @@ class BinderUniversal:
                                     key_clean = key.strip('()')
                                     parts = key_clean.split(',')
                                     if len(parts) == 2:
-                                        page = int(parts[0].strip())
+                                        hoja = int(parts[0].strip())
                                         pos = int(parts[1].strip())
-                                        self.occupied_slots[(page, pos)] = value
+                                        self.occupied_slots[(hoja, pos)] = value
                     
-                    # Configurar variables de binder
                     self.total_slots = self.config_binder.get('total_cartas', 0)
-                    self.total_pages = self.config_binder.get('total_paginas', 1)
-                    self.spaces_per_page = self.config_binder.get('espacios_por_pagina', 32)
+                    self.total_hojas = self.config_binder.get('total_hojas', 1)  # Cambiado: total_pages -> total_hojas
+                    self.spaces_per_hoja = self.config_binder.get('espacios_por_hoja', 32)  # Cambiado: espacios_por_pagina -> espacios_por_hoja
                     self.spaces_per_side = self.config_binder.get('espacios_por_lado', 16)
                     self.rows_per_side = self.config_binder.get('filas_por_lado', 4)
                     self.cols_per_side = self.config_binder.get('columnas_por_lado', 4)
                     self.cell_size = 70
                     
-                    # Ir directamente al binder
                     self.create_main_interface()
                     return
                     
             except Exception as e:
                 print(f"Error cargando binder activo: {e}")
         
-        # Si no hay binder activo, mostrar pantalla de inicio
         self.create_home_screen()
     
     def guardar_binder_activo(self):
@@ -116,7 +331,6 @@ class BinderUniversal:
         ruta_binder = os.path.join(self.binders_path, self.binder_actual)
         os.makedirs(ruta_binder, exist_ok=True)
         
-        # Guardar configuración
         config_path = os.path.join(ruta_binder, "config.json")
         try:
             with open(config_path, 'w', encoding='utf-8') as f:
@@ -124,7 +338,6 @@ class BinderUniversal:
         except:
             pass
         
-        # Guardar progreso
         self.guardar_progreso()
     
     def guardar_progreso(self):
@@ -144,41 +357,39 @@ class BinderUniversal:
         except:
             return False
     
-    # PANTALLA 1: INICIO (CON BINDERS EXISTENTES)
+    # ============================================
+    # PANTALLA DE INICIO
+    # ============================================
     def create_home_screen(self):
         """Pantalla de inicio que muestra binders existentes"""
         for widget in self.root.winfo_children():
             widget.destroy()
         
-        main_frame = tk.Frame(self.root, bg="#2c3e50")
+        main_frame = tk.Frame(self.root, bg="#121314")
         main_frame.pack(fill="both", expand=True, padx=40, pady=40)
         
-        # Título
         tk.Label(
             main_frame,
             text="ORGANIZADOR DE BINDERS",
             font=("Arial", 28, "bold"),
-            bg="#2c3e50",
+            bg="#121314",
             fg="#ecf0f1"
         ).pack(pady=(0, 30))
         
-        # Buscar binders existentes
         binders_existentes = self.scan_binders_existentes()
         
         if binders_existentes:
-            # Frame para binders existentes
             existentes_frame = tk.LabelFrame(
                 main_frame,
                 text="TUS BINDERS GUARDADOS",
                 font=("Arial", 16, "bold"),
-                bg="#34495e",
+                bg="#191A1B",
                 fg="#ecf0f1",
                 padx=20,
                 pady=20
             )
             existentes_frame.pack(fill="both", expand=True, pady=(0, 20))
             
-            # Mostrar binders en grid
             row = 0
             col = 0
             for binder_nombre, binder_info in binders_existentes.items():
@@ -202,7 +413,7 @@ class BinderUniversal:
                 
                 tk.Label(
                     card,
-                    text=f"{binder_info['cartas']} cartas",
+                    text=f"{binder_info['cartas']} items",
                     font=("Arial", 10),
                     bg="#2c3e50",
                     fg="#f39c12"
@@ -210,7 +421,7 @@ class BinderUniversal:
                 
                 tk.Label(
                     card,
-                    text=f"{binder_info['progreso']} marcadas",
+                    text=f"{binder_info['progreso']} marcados",
                     font=("Arial", 10),
                     bg="#2c3e50",
                     fg="#2ecc71"
@@ -232,12 +443,10 @@ class BinderUniversal:
                     col = 0
                     row += 1
             
-            # Configurar grid
             for i in range(3):
                 existentes_frame.grid_columnconfigure(i, weight=1)
         
-        # Botón para nuevo binder 
-        nuevo_frame = tk.Frame(main_frame, bg="#2c3e50")
+        nuevo_frame = tk.Frame(main_frame, bg="#121314")
         nuevo_frame.pack(pady=20)
         
         tk.Button(
@@ -267,7 +476,6 @@ class BinderUniversal:
                         with open(config_path, 'r', encoding='utf-8') as f:
                             config = json.load(f)
                         
-                        # Contar progreso
                         marcadas = 0
                         if os.path.exists(progreso_path):
                             with open(progreso_path, 'r') as f:
@@ -296,12 +504,10 @@ class BinderUniversal:
             
             self.binder_actual = binder_nombre
             
-            # Cargar datos de la colección
             self.datos_coleccion = self.cargar_datos_coleccion(
                 self.config_binder.get('ruta_coleccion', '')
             )
             
-            # Cargar progreso
             progreso_path = os.path.join(ruta_binder, "progreso.json")
             if os.path.exists(progreso_path):
                 with open(progreso_path, 'r') as f:
@@ -312,50 +518,46 @@ class BinderUniversal:
                             key_clean = key.strip('()')
                             parts = key_clean.split(',')
                             if len(parts) == 2:
-                                page = int(parts[0].strip())
+                                hoja = int(parts[0].strip())
                                 pos = int(parts[1].strip())
-                                self.occupied_slots[(page, pos)] = value
+                                self.occupied_slots[(hoja, pos)] = value
             
-            # Configurar variables
             self.total_slots = self.config_binder.get('total_cartas', 0)
-            self.total_pages = self.config_binder.get('total_paginas', 1)
-            self.spaces_per_page = self.config_binder.get('espacios_por_pagina', 32)
+            self.total_hojas = self.config_binder.get('total_hojas', 1)
+            self.spaces_per_hoja = self.config_binder.get('espacios_por_hoja', 32)
             self.spaces_per_side = self.config_binder.get('espacios_por_lado', 16)
             self.rows_per_side = self.config_binder.get('filas_por_lado', 4)
             self.cols_per_side = self.config_binder.get('columnas_por_lado', 4)
             self.cell_size = 70
             
-            # Guardar como activo
             self.guardar_binder_activo()
-            # Ir al binder
             self.create_main_interface()
             
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el binder:\n{e}")
     
-    # PANTALLA 2: SELECCIÓN DE COLECCIÓN
+    # ============================================
+    # SELECCIÓN DE COLECCIÓN
+    # ============================================
     def show_colecciones_disponibles(self):
         """Muestra las colecciones disponibles para crear binder"""
         for widget in self.root.winfo_children():
             widget.destroy()
         
-        main_frame = tk.Frame(self.root, bg="#2c3e50")
+        main_frame = tk.Frame(self.root, bg="#121314")
         main_frame.pack(fill="both", expand=True, padx=40, pady=40)
         
-        # Título
         tk.Label(
             main_frame,
             text="SELECCIONA UNA COLECCIÓN",
             font=("Arial", 24, "bold"),
-            bg="#2c3e50",
+            bg="#121314",
             fg="#ecf0f1"
         ).pack(pady=(0, 30))
         
-        # Frame para colecciones
-        colecciones_frame = tk.Frame(main_frame, bg="#34495e", padx=30, pady=30)
+        colecciones_frame = tk.Frame(main_frame, bg="#191A1B", padx=30, pady=30)
         colecciones_frame.pack(fill="both", expand=True)
         
-        # Buscar colecciones
         colecciones = self.scan_colecciones()
         
         if not colecciones:
@@ -364,15 +566,14 @@ class BinderUniversal:
                 text="No hay colecciones disponibles\n\n"
                      "Crea una carpeta en 'colecciones/' con un archivo 'coleccion.csv'",
                 font=("Arial", 12),
-                bg="#34495e",
+                bg="#191A1B",
                 fg="#e74c3c",
                 justify="center"
             ).pack(pady=40)
             
-            # Botón para crear ejemplo
             tk.Button(
                 colecciones_frame,
-                text=" Crear Colección de Ejemplo",
+                text="Crear Colección de Ejemplo",
                 command=self.create_example_collection,
                 bg="#27ae60",
                 fg="white",
@@ -381,7 +582,6 @@ class BinderUniversal:
                 pady=15
             ).pack()
             
-            # Botón para volver
             tk.Button(
                 colecciones_frame,
                 text="← Volver",
@@ -395,7 +595,6 @@ class BinderUniversal:
             
             return
         
-        # Mostrar colecciones en grid
         row = 0
         col = 0
         for nombre, ruta in colecciones.items():
@@ -421,7 +620,7 @@ class BinderUniversal:
             
             tk.Label(
                 card,
-                text=f"{total_items} cartas",
+                text=f"{total_items} items",
                 font=("Arial", 12),
                 bg="#2c3e50",
                 fg="#f39c12"
@@ -443,11 +642,9 @@ class BinderUniversal:
                 col = 0
                 row += 1
         
-        # Configurar grid
         for i in range(3):
             colecciones_frame.grid_columnconfigure(i, weight=1)
         
-        # Botón volver
         tk.Button(
             main_frame,
             text="← Volver",
@@ -486,26 +683,26 @@ class BinderUniversal:
             pass
         return count
     
-    # PANTALLA 3: CONFIGURACIÓN DEL BINDER
+    # ============================================
+    # CONFIGURACIÓN DEL BINDER
+    # ============================================
     def configurar_binder(self, ruta_coleccion, nombre_coleccion, total_items):
         """Ventana para configurar el nuevo binder"""
         config_window = tk.Toplevel(self.root)
         config_window.title(f"Configurar Binder - {nombre_coleccion}")
         config_window.geometry("500x700") 
-        config_window.configure(bg="#34495e")
+        config_window.configure(bg="#191A1B")
         config_window.transient(self.root)
         config_window.grab_set()
         
-        # Centrado
         config_window.update_idletasks()
         x = (config_window.winfo_screenwidth() // 2) - (600 // 2)
         y = (config_window.winfo_screenheight() // 2) - (700 // 2)
         config_window.geometry(f'+{x}+{y}')
         
-        # scroll
-        canvas = tk.Canvas(config_window, bg="#34495e", highlightthickness=0)
+        canvas = tk.Canvas(config_window, bg="#191A1B", highlightthickness=0)
         scrollbar = tk.Scrollbar(config_window, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg="#34495e")
+        scrollable_frame = tk.Frame(canvas, bg="#191A1B")
         
         scrollable_frame.bind(
             "<Configure>",
@@ -518,15 +715,14 @@ class BinderUniversal:
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         
-        main_frame = tk.Frame(scrollable_frame, bg="#34495e", padx=40, pady=40)
+        main_frame = tk.Frame(scrollable_frame, bg="#191A1B", padx=40, pady=40)
         main_frame.pack(fill="both", expand=True)
         
-        # Título
         tk.Label(
             main_frame,
             text="CONFIGURAR BINDER",
             font=("Arial", 20, "bold"),
-            bg="#34495e",
+            bg="#191A1B",
             fg="#ecf0f1"
         ).pack(pady=(0, 5))
         
@@ -534,19 +730,18 @@ class BinderUniversal:
             main_frame,
             text=f"Colección: {nombre_coleccion}",
             font=("Arial", 14),
-            bg="#34495e",
+            bg="#191A1B",
             fg="#f39c12"
         ).pack(pady=(0, 10))
         
         tk.Label(
             main_frame,
-            text=f" {total_items} cartas en total",
+            text=f"{total_items} items en total",
             font=("Arial", 16, "bold"),
-            bg="#34495e",
+            bg="#191A1B",
             fg="#2ecc71"
         ).pack(pady=(0, 20))
         
-        # Frame configuración
         config_frame = tk.Frame(main_frame, bg="#2c3e50", padx=30, pady=30)
         config_frame.pack(fill="x", pady=10)
         
@@ -600,11 +795,9 @@ class BinderUniversal:
         )
         cols_spin.pack(side="left", padx=10)
         
-        # Separador
         separator = tk.Frame(config_frame, bg="#34495e", height=2)
         separator.pack(fill="x", pady=25)
         
-        # Cálculos de paginas y hojas
         calc_frame = tk.Frame(config_frame, bg="#2c3e50")
         calc_frame.pack(fill="x", pady=15)
         
@@ -613,13 +806,13 @@ class BinderUniversal:
                 rows = rows_var.get()
                 cols = cols_var.get()
                 espacios_lado = rows * cols
-                espacios_pagina = espacios_lado * 2
-                paginas = (total_items + espacios_pagina - 1) // espacios_pagina
+                espacios_hoja = espacios_lado * 2  # Cambiado: espacios_pagina -> espacios_hoja
+                hojas = (total_items + espacios_hoja - 1) // espacios_hoja
                 
-                calc_text = f" CONFIGURACIÓN SELECCIONADA:\n\n"
+                calc_text = f"CONFIGURACIÓN SELECCIONADA:\n\n"
                 calc_text += f"• {rows} filas × {cols} columnas = {espacios_lado} espacios por lado\n"
-                calc_text += f"• {espacios_pagina} espacios por página\n"
-                calc_text += f"• {paginas} páginas totales"
+                calc_text += f"• {espacios_hoja} espacios por hoja (frente + reverso)\n"
+                calc_text += f"• {hojas} hojas totales en el binder"
                 
                 calc_label.config(text=calc_text)
             except:
@@ -640,8 +833,7 @@ class BinderUniversal:
         
         update_calculos()
         
-        # Botones (más espacio abajo)
-        btn_frame = tk.Frame(main_frame, bg="#34495e")
+        btn_frame = tk.Frame(main_frame, bg="#191A1B")
         btn_frame.pack(pady=40)
         
         def crear_binder():
@@ -653,43 +845,38 @@ class BinderUniversal:
                     messagebox.showerror("Error", "Valores entre 1 y 10")
                     return
                 
-                # Generar nombre único para el binder
                 import time
                 timestamp = int(time.time())
                 self.binder_actual = f"{nombre_coleccion}_{timestamp}"
                 
                 espacios_lado = rows * cols
-                espacios_pagina = espacios_lado * 2
-                total_paginas = (total_items + espacios_pagina - 1) // espacios_pagina
+                espacios_hoja = espacios_lado * 2
+                total_hojas = (total_items + espacios_hoja - 1) // espacios_hoja
                 
-                # Guardar configuración
                 self.config_binder = {
                     "nombre": self.binder_actual,
                     "nombre_coleccion": nombre_coleccion,
                     "ruta_coleccion": ruta_coleccion,
                     "total_cartas": total_items,
-                    "espacios_por_pagina": espacios_pagina,
+                    "espacios_por_hoja": espacios_hoja,
                     "espacios_por_lado": espacios_lado,
                     "filas_por_lado": rows,
                     "columnas_por_lado": cols,
-                    "total_paginas": total_paginas,
+                    "total_hojas": total_hojas,
                     "fecha_creacion": timestamp
                 }
                 
-                # Cargar datos de la colección
                 self.datos_coleccion = self.cargar_datos_coleccion(ruta_coleccion)
                 
-                # Configurar variables
                 self.total_slots = total_items
-                self.total_pages = total_paginas
-                self.spaces_per_page = espacios_pagina
+                self.total_hojas = total_hojas
+                self.spaces_per_hoja = espacios_hoja
                 self.spaces_per_side = espacios_lado
                 self.rows_per_side = rows
                 self.cols_per_side = cols
                 self.cell_size = 70
                 self.occupied_slots = {}
                 
-                # Guardar todo
                 self.guardar_configuracion_binder()
                 self.guardar_binder_activo()
                 
@@ -763,24 +950,47 @@ class BinderUniversal:
 1,Bulbasaur,Grass
 2,Ivysaur,Grass
 3,Venusaur,Grass
+4,Charmander,Fire
+5,Charmeleon,Fire
+6,Charizard,Fire
+7,Squirtle,Water
+8,Wartortle,Water
+9,Blastoise,Water
+10,Caterpie,Bug
+11,Metapod,Bug
+12,Butterfree,Bug
+13,Weedle,Bug
+14,Kakuna,Bug
+15,Beedrill,Bug
+16,Pidgey,Normal
+17,Pidgeotto,Normal
+18,Pidgeot,Normal
+19,Rattata,Normal
+20,Raticate,Normal
+21,Spearow,Normal
+22,Fearow,Normal
+23,Ekans,Poison
+24,Arbok,Poison
+25,Pikachu,Electric
 """
         with open(os.path.join(ejemplo_path, "coleccion.csv"), 'w', encoding='utf-8') as f:
             f.write(csv_content)
         
-        messagebox.showinfo("Creada", " Colección de ejemplo creada")
+        messagebox.showinfo("Creada", "Colección de ejemplo creada")
         self.show_colecciones_disponibles()
     
-    # PANTALLA 4: INTERFAZ PRINCIPAL DEL BINDER
+    # ============================================
+    # INTERFAZ PRINCIPAL DEL BINDER
+    # ============================================
     def create_main_interface(self):
         """Interfaz principal del binder"""
         for widget in self.root.winfo_children():
             widget.destroy()
         
-        main_frame = tk.Frame(self.root, bg="#2c3e50")
+        main_frame = tk.Frame(self.root, bg="#121314")
         main_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
-        # Header con nombre del binder
-        header_frame = tk.Frame(main_frame, bg="#2c3e50")
+        header_frame = tk.Frame(main_frame, bg="#121314")
         header_frame.pack(fill="x", pady=(0, 10))
         
         nombre_coleccion = self.config_binder.get('nombre_coleccion', 'Colección')
@@ -788,11 +998,10 @@ class BinderUniversal:
             header_frame,
             text=f"{nombre_coleccion}",
             font=("Arial", 22, "bold"),
-            bg="#2c3e50",
+            bg="#121314",
             fg="#ecf0f1"
         ).pack(side="left")
         
-        # Botón para volver al inicio
         tk.Button(
             header_frame,
             text="Volver al Inicio",
@@ -804,31 +1013,29 @@ class BinderUniversal:
             pady=2
         ).pack(side="right")
         
-        # Info del binder
-        info_text = (f"{self.total_slots} cartas | "
+        info_text = (f"{self.total_slots} items | "
                      f"{self.rows_per_side}×{self.cols_per_side} = {self.spaces_per_side} esp/lado | "
-                     f"{self.spaces_per_page} esp/página | {self.total_pages} páginas")
+                     f"{self.spaces_per_hoja} esp/hoja | {self.total_hojas} hojas")
         tk.Label(
             main_frame,
             text=info_text,
             font=("Arial", 11),
-            bg="#2c3e50",
+            bg="#121314",
             fg="#bdc3c7"
         ).pack(pady=(0, 10))
         
-        # Frame superior (contador)
-        top_frame = tk.Frame(main_frame, bg="#34495e", padx=15, pady=8)
+        # Frame superior con contador y botones
+        top_frame = tk.Frame(main_frame, bg="#191A1B", padx=15, pady=8)
         top_frame.pack(fill="x", pady=(0, 10))
         
-        # Contador
-        counter_frame = tk.Frame(top_frame, bg="#34495e")
+        counter_frame = tk.Frame(top_frame, bg="#191A1B")
         counter_frame.pack(side="left")
         
         self.counter_label = tk.Label(
             counter_frame,
-            text=f"Cartas: 0/{self.total_slots}",
+            text=f"Items: 0/{self.total_slots}",
             font=("Arial", 12, "bold"),
-            bg="#34495e",
+            bg="#191A1B",
             fg="#2ecc71"
         )
         self.counter_label.pack(side="left", padx=(0, 15))
@@ -837,14 +1044,28 @@ class BinderUniversal:
             counter_frame,
             text="0% completado",
             font=("Arial", 11),
-            bg="#34495e",
+            bg="#191A1B",
             fg="#f39c12"
         )
         self.percent_label.pack(side="left")
         
-        # Botón limpiar
+        # Botones de gestión
+        manage_frame = tk.Frame(top_frame, bg="#191A1B")
+        manage_frame.pack(side="right")
+        
         tk.Button(
-            top_frame,
+            manage_frame,
+            text="Ver Faltantes",
+            command=self.mostrar_faltantes,
+            bg="#e74c3c",
+            fg="white",
+            font=("Arial", 9),
+            padx=8,
+            pady=2
+        ).pack(side="left", padx=3)
+        
+        tk.Button(
+            manage_frame,
             text="Limpiar Todo",
             command=self.clear_all_markers,
             bg="#e74c3c",
@@ -852,17 +1073,28 @@ class BinderUniversal:
             font=("Arial", 9),
             padx=8,
             pady=2
-        ).pack(side="right")
+        ).pack(side="left", padx=3)
+        
+        tk.Button(
+            manage_frame,
+            text="Guardar",
+            command=self.force_save,
+            bg="#27ae60",
+            fg="white",
+            font=("Arial", 9),
+            padx=8,
+            pady=2
+        ).pack(side="left", padx=3)
         
         # Búsqueda
-        search_frame = tk.Frame(main_frame, bg="#34495e", padx=15, pady=10)
+        search_frame = tk.Frame(main_frame, bg="#191A1B", padx=15, pady=10)
         search_frame.pack(fill="x", pady=(0, 10))
         
         tk.Label(
             search_frame,
             text="Buscar:",
             font=("Arial", 11),
-            bg="#34495e",
+            bg="#191A1B",
             fg="#ecf0f1"
         ).pack(side="left", padx=(0, 8))
         
@@ -875,7 +1107,7 @@ class BinderUniversal:
         self.search_combo.pack(side="left", padx=(0, 8))
         self.setup_autocomplete()
         
-        btn_frame = tk.Frame(search_frame, bg="#34495e")
+        btn_frame = tk.Frame(search_frame, bg="#191A1B")
         btn_frame.pack(side="left", padx=(10, 0))
         
         tk.Button(
@@ -891,7 +1123,7 @@ class BinderUniversal:
         
         tk.Button(
             btn_frame,
-            text=" Marcar",
+            text="Marcar",
             command=self.find_and_mark,
             bg="#9b59b6",
             fg="white",
@@ -902,7 +1134,7 @@ class BinderUniversal:
         
         tk.Button(
             btn_frame,
-            text=" Desmarcar",
+            text="Desmarcar",
             command=self.unmark_current,
             bg="#e67e22",
             fg="white",
@@ -912,17 +1144,17 @@ class BinderUniversal:
         ).pack(side="left", padx=2)
         
         # Canvas
-        page_frame = tk.Frame(main_frame, bg="#2c3e50", padx=20, pady=5)
+        page_frame = tk.Frame(main_frame, bg="#121314", padx=20, pady=5)
         page_frame.pack(fill="x", pady=(0, 10))
         
-        self.page_title = tk.Label(
+        self.hoja_title = tk.Label(  # Cambiado: page_title -> hoja_title
             page_frame,
-            text="Página 1",
+            text="Hoja 1",
             font=("Arial", 14, "bold"),
-            bg="#2c3e50",
+            bg="#121314",
             fg="#ecf0f1"
         )
-        self.page_title.pack(pady=(0, 15))
+        self.hoja_title.pack(pady=(0, 15))
         
         canvas_width = 60 + (self.cell_size * self.cols_per_side) + 60 + (self.cell_size * self.cols_per_side) + 60
         canvas_height = 60 + (self.cell_size * self.rows_per_side) + 60
@@ -938,14 +1170,14 @@ class BinderUniversal:
         self.canvas.pack()
         self.canvas.bind('<Button-1>', self.canvas_click)
         
-        # Controles de página
-        control_frame = tk.Frame(main_frame, bg="#2c3e50", pady=5)
+        # Controles de hoja (antes página)
+        control_frame = tk.Frame(main_frame, bg="#121314", pady=5)
         control_frame.pack()
         
         self.prev_btn = tk.Button(
             control_frame,
-            text="◀ Anterior",
-            command=self.prev_page,
+            text="◀ Hoja Anterior",
+            command=self.prev_hoja,  # Cambiado: prev_page -> prev_hoja
             bg="#95a5a6",
             fg="white",
             font=("Arial", 10),
@@ -957,36 +1189,36 @@ class BinderUniversal:
         
         tk.Label(
             control_frame,
-            text="Página:",
+            text="Hoja:",
             font=("Arial", 11),
-            bg="#2c3e50",
+            bg="#121314",
             fg="#ecf0f1"
         ).pack(side="left", padx=(15, 5))
         
-        self.page_var = tk.StringVar(value="1")
-        page_spinbox = tk.Spinbox(
+        self.hoja_var = tk.StringVar(value="1")  # Cambiado: page_var -> hoja_var
+        hoja_spinbox = tk.Spinbox(
             control_frame,
             from_=1,
-            to=self.total_pages,
-            textvariable=self.page_var,
+            to=self.total_hojas,
+            textvariable=self.hoja_var,
             width=5,
             font=("Arial", 11),
-            command=self.go_to_page
+            command=self.go_to_hoja  # Cambiado: go_to_page -> go_to_hoja
         )
-        page_spinbox.pack(side="left", padx=5)
+        hoja_spinbox.pack(side="left", padx=5)
         
         tk.Label(
             control_frame,
-            text=f"de {self.total_pages}",
+            text=f"de {self.total_hojas}",
             font=("Arial", 11),
-            bg="#2c3e50",
+            bg="#121314",
             fg="#ecf0f1"
         ).pack(side="left", padx=5)
         
         self.next_btn = tk.Button(
             control_frame,
-            text="Siguiente ▶",
-            command=self.next_page,
+            text="Siguiente Hoja ▶",
+            command=self.next_hoja,  # Cambiado: next_page -> next_hoja
             bg="#95a5a6",
             fg="white",
             font=("Arial", 10),
@@ -998,19 +1230,18 @@ class BinderUniversal:
         # Info inferior
         self.info_label = tk.Label(
             main_frame,
-            text=f"Listo | 0/{self.total_slots} cartas",
+            text=f"Listo | 0/{self.total_slots} items",
             font=("Arial", 10),
-            bg="#2c3e50",
+            bg="#121314",
             fg="#bdc3c7",
             pady=5
         )
         self.info_label.pack()
         
-        # Estado
         self.current_highlight = None
         self.current_position = None
         
-        self.draw_page()
+        self.draw_hoja()  # Cambiado: draw_page -> draw_hoja
         self.update_counter()
     
     def volver_al_inicio(self):
@@ -1018,7 +1249,14 @@ class BinderUniversal:
         self.guardar_progreso()
         self.create_home_screen()
     
+    def force_save(self):
+        """Fuerza un guardado manual"""
+        if self.guardar_progreso():
+            messagebox.showinfo("Guardado", "Progreso guardado exitosamente")
+    
+    # ============================================
     # MÉTODOS DE FUNCIONAMIENTO
+    # ============================================
     def setup_autocomplete(self):
         """Configura autocompletado"""
         nombres = []
@@ -1095,35 +1333,35 @@ class BinderUniversal:
     
     def _find_position_by_number(self, num):
         """Busca por número"""
-        page = (num - 1) // self.spaces_per_page + 1
-        pos_in_page = ((num - 1) % self.spaces_per_page) + 1
+        hoja = (num - 1) // self.spaces_per_hoja + 1
+        pos_in_hoja = ((num - 1) % self.spaces_per_hoja) + 1
         
-        if pos_in_page <= self.spaces_per_side:
+        if pos_in_hoja <= self.spaces_per_side:
             side = "Frente"
-            grid_pos = pos_in_page
+            grid_pos = pos_in_hoja
         else:
             side = "Reverso"
-            grid_pos = pos_in_page - self.spaces_per_side
+            grid_pos = pos_in_hoja - self.spaces_per_side
         
         row = (grid_pos - 1) // self.cols_per_side
         col = (grid_pos - 1) % self.cols_per_side
         
-        self.current_position = (page, pos_in_page)
-        is_marked = (page, pos_in_page) in self.occupied_slots
+        self.current_position = (hoja, pos_in_hoja)
+        is_marked = (hoja, pos_in_hoja) in self.occupied_slots
         
         nombre = f"#{num}"
         if num in self.datos_coleccion:
             nombre = f"#{num} - {self.datos_coleccion[num]['nombre']}"
         
         self.info_label.config(
-            text=f"{nombre} | Página {page}, Pos {pos_in_page} ({side}) | {'✓ MARCADO' if is_marked else '○ DISPONIBLE'} | {len(self.occupied_slots)}/{self.total_slots} cartas",
+            text=f"{nombre} | Hoja {hoja}, Pos {pos_in_hoja} ({side}) | {'MARCADO' if is_marked else 'DISPONIBLE'} | {len(self.occupied_slots)}/{self.total_slots} items",
             fg="#2ecc71" if is_marked else "#3498db"
         )
         
-        self.current_page = page
-        self.page_var.set(str(page))
-        self.update_page_controls()
-        self.draw_page()
+        self.current_hoja = hoja
+        self.hoja_var.set(str(hoja))
+        self.update_hoja_controls()  # Cambiado: update_page_controls -> update_hoja_controls
+        self.draw_hoja()
         self.highlight_position(row, col, side)
     
     def canvas_click(self, event):
@@ -1153,46 +1391,46 @@ class BinderUniversal:
             else:
                 pos = row * self.cols_per_side + col + 1 + self.spaces_per_side
             
-            abs_num = (self.current_page - 1) * self.spaces_per_page + pos
+            abs_num = (self.current_hoja - 1) * self.spaces_per_hoja + pos
             
             nombre = f"#{abs_num}"
             if abs_num in self.datos_coleccion:
                 nombre = f"#{abs_num} - {self.datos_coleccion[abs_num]['nombre']}"
             
-            key = (self.current_page, pos)
+            key = (self.current_hoja, pos)
             if key in self.occupied_slots:
                 del self.occupied_slots[key]
                 status = "Desmarcado"
                 color = "#e74c3c"
             else:
                 self.occupied_slots[key] = True
-                status = "Marcado ✓"
+                status = "Marcado"
                 color = "#9b59b6"
             
             self.guardar_progreso()
             self.update_counter()
-            self.draw_page()
+            self.draw_hoja()
             self.highlight_position(row, col, side)
             
             self.info_label.config(
-                text=f"{nombre} | Página {self.current_page}, Pos {pos} ({side}) | {status} | {len(self.occupied_slots)}/{self.total_slots} cartas",
+                text=f"{nombre} | Hoja {self.current_hoja}, Pos {pos} ({side}) | {status} | {len(self.occupied_slots)}/{self.total_slots} items",
                 fg=color
             )
             
-            self.current_position = (self.current_page, pos)
+            self.current_position = (self.current_hoja, pos)
     
-    def draw_page(self):
-        """Dibuja página"""
+    def draw_hoja(self):  # Cambiado: draw_page -> draw_hoja
+        """Dibuja la hoja actual"""
         self.canvas.delete("all")
         
-        start = (self.current_page - 1) * self.spaces_per_page + 1
-        end = min(self.current_page * self.spaces_per_page, self.total_slots)
-        self.page_title.config(text=f"Página {self.current_page} - Items #{start} a #{end}")
+        start = (self.current_hoja - 1) * self.spaces_per_hoja + 1
+        end = min(self.current_hoja * self.spaces_per_hoja, self.total_slots)
+        self.hoja_title.config(text=f"Hoja {self.current_hoja} - Items #{start} a #{end}")
         
         self.draw_grid_section("FRENTE", 60, 60)
         self.draw_grid_section("REVERSO", 60 + self.cell_size * self.cols_per_side + 60, 60)
         
-        self.canvas.create_text(400, 40, text="← Haz CLICK para marcar/desmarcar", 
+        self.canvas.create_text(400, 40, text="CLICK para marcar/desmarcar", 
                               fill="#7f8c8d", font=("Arial", 9))
     
     def draw_grid_section(self, title, x_offset, y_offset):
@@ -1219,7 +1457,7 @@ class BinderUniversal:
                 else:
                     pos = row * self.cols_per_side + col + 1 + self.spaces_per_side
                 
-                is_occupied = (self.current_page, pos) in self.occupied_slots
+                is_occupied = (self.current_hoja, pos) in self.occupied_slots
                 bg_color = "#bdc3c7" if is_occupied else "#ffffff"
                 
                 self.canvas.create_rectangle(
@@ -1229,7 +1467,7 @@ class BinderUniversal:
                     width=2
                 )
                 
-                abs_num = (self.current_page - 1) * self.spaces_per_page + pos
+                abs_num = (self.current_hoja - 1) * self.spaces_per_hoja + pos
                 
                 if abs_num <= self.total_slots and abs_num in self.datos_coleccion:
                     nombre = self.datos_coleccion[abs_num]['nombre']
@@ -1298,7 +1536,7 @@ class BinderUniversal:
         percent = (total / self.total_slots * 100) if self.total_slots > 0 else 0
         
         self.counter_label.config(
-            text=f"Cartas: {total}/{self.total_slots} ({remaining} restantes)",
+            text=f"Items: {total}/{self.total_slots} ({remaining} restantes)",
             fg="#2ecc71" if total > 0 else "#ecf0f1"
         )
         self.percent_label.config(
@@ -1309,31 +1547,31 @@ class BinderUniversal:
     def find_and_mark(self):
         self.find_position()
         if self.current_position:
-            page, pos = self.current_position
-            key = (page, pos)
+            hoja, pos = self.current_position
+            key = (hoja, pos)
             if key not in self.occupied_slots:
                 self.occupied_slots[key] = True
                 self.guardar_progreso()
                 self.update_counter()
-                self.draw_page()
+                self.draw_hoja()
     
     def unmark_current(self):
         if self.current_position:
-            page, pos = self.current_position
-            key = (page, pos)
+            hoja, pos = self.current_position
+            key = (hoja, pos)
             if key in self.occupied_slots:
                 del self.occupied_slots[key]
                 self.guardar_progreso()
                 self.update_counter()
-                self.draw_page()
+                self.draw_hoja()
                 
-                abs_num = (page - 1) * self.spaces_per_page + pos
+                abs_num = (hoja - 1) * self.spaces_per_hoja + pos
                 nombre = f"#{abs_num}"
                 if abs_num in self.datos_coleccion:
                     nombre = f"#{abs_num} - {self.datos_coleccion[abs_num]['nombre']}"
                 
                 self.info_label.config(
-                    text=f"{nombre} desmarcado | {len(self.occupied_slots)}/{self.total_slots} cartas",
+                    text=f"{nombre} desmarcado | {len(self.occupied_slots)}/{self.total_slots} items",
                     fg="#e74c3c"
                 )
     
@@ -1346,43 +1584,47 @@ class BinderUniversal:
             self.occupied_slots.clear()
             self.guardar_progreso()
             self.update_counter()
-            self.draw_page()
-            self.info_label.config(text=f"Todos limpiados | 0/{self.total_slots} cartas", fg="#e74c3c")
+            self.draw_hoja()
+            self.info_label.config(text=f"Todos limpiados | 0/{self.total_slots} items", fg="#e74c3c")
             self.current_position = None
     
-    def prev_page(self):
-        if self.current_page > 1:
-            self.current_page -= 1
-            self.page_var.set(str(self.current_page))
-            self.update_page_controls()
+    def prev_hoja(self):  # Cambiado: prev_page -> prev_hoja
+        """Ir a la hoja anterior"""
+        if self.current_hoja > 1:
+            self.current_hoja -= 1
+            self.hoja_var.set(str(self.current_hoja))
+            self.update_hoja_controls()
             self.clear_highlight()
-            self.draw_page()
+            self.draw_hoja()
             self.current_position = None
     
-    def next_page(self):
-        if self.current_page < self.total_pages:
-            self.current_page += 1
-            self.page_var.set(str(self.current_page))
-            self.update_page_controls()
+    def next_hoja(self):  # Cambiado: next_page -> next_hoja
+        """Ir a la hoja siguiente"""
+        if self.current_hoja < self.total_hojas:
+            self.current_hoja += 1
+            self.hoja_var.set(str(self.current_hoja))
+            self.update_hoja_controls()
             self.clear_highlight()
-            self.draw_page()
+            self.draw_hoja()
             self.current_position = None
     
-    def go_to_page(self):
+    def go_to_hoja(self):  # Cambiado: go_to_page -> go_to_hoja
+        """Ir a una hoja específica"""
         try:
-            page = int(self.page_var.get())
-            if 1 <= page <= self.total_pages:
-                self.current_page = page
-                self.update_page_controls()
+            hoja = int(self.hoja_var.get())
+            if 1 <= hoja <= self.total_hojas:
+                self.current_hoja = hoja
+                self.update_hoja_controls()
                 self.clear_highlight()
-                self.draw_page()
+                self.draw_hoja()
                 self.current_position = None
         except:
             pass
     
-    def update_page_controls(self):
-        self.prev_btn.config(state="normal" if self.current_page > 1 else "disabled")
-        self.next_btn.config(state="normal" if self.current_page < self.total_pages else "disabled")
+    def update_hoja_controls(self):  # Cambiado: update_page_controls -> update_hoja_controls
+        """Actualiza el estado de los botones de hoja"""
+        self.prev_btn.config(state="normal" if self.current_hoja > 1 else "disabled")
+        self.next_btn.config(state="normal" if self.current_hoja < self.total_hojas else "disabled")
 
 def main():
     import sys
