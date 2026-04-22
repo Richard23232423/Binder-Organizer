@@ -10,7 +10,7 @@ from datetime import datetime
 class BinderUniversal:
     def __init__(self, root):
         self.root = root
-        self.root.title("Organizador Universal de Binders")
+        self.root.title("Organizador de Binders TCG")
         self.root.geometry("1000x750")
         
         # Configuración de carpetas
@@ -26,23 +26,19 @@ class BinderUniversal:
         os.makedirs(self.colecciones_path, exist_ok=True)
         os.makedirs(self.binders_path, exist_ok=True)
         
-        # Variables
+        # Variables iniciales
         self.binder_actual = None
         self.config_binder = {}
         self.datos_coleccion = {}
         self.occupied_slots = {}
         self.search_var = tk.StringVar()
-        self.current_hoja = 1  # Cambiado: current_page -> current_hoja
-        
-        # NUEVOS COLORES
+        self.current_hoja = 1  
         self.root.configure(bg="#121314")
         
         # Cargar binder activo si existe
         self.cargar_binder_activo()
     
-    # ============================================
-    # FUNCIÓN DE FALTANTES
-    # ============================================
+    # Obtener pokemon faltantes
     def get_faltantes(self):
         """Calcula los items que faltan (no están marcados)"""
         faltantes = []
@@ -257,9 +253,7 @@ class BinderUniversal:
         
         listbox.bind('<Double-Button-1>', lambda e: ir_a_item())
     
-    # ============================================
-    # GESTIÓN DE BINDERS
-    # ============================================
+    # Gestion de binders
     def cargar_binder_activo(self):
         """Carga el último binder activo si existe"""
         activo_path = os.path.join(self.binders_path, "activo.json")
@@ -357,9 +351,7 @@ class BinderUniversal:
         except:
             return False
     
-    # ============================================
-    # PANTALLA DE INICIO
-    # ============================================
+    # Pantalla de inicio
     def create_home_screen(self):
         """Pantalla de inicio que muestra binders existentes"""
         for widget in self.root.winfo_children():
@@ -536,9 +528,7 @@ class BinderUniversal:
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el binder:\n{e}")
     
-    # ============================================
-    # SELECCIÓN DE COLECCIÓN
-    # ============================================
+    # Selección de colección
     def show_colecciones_disponibles(self):
         """Muestra las colecciones disponibles para crear binder"""
         for widget in self.root.winfo_children():
@@ -683,9 +673,7 @@ class BinderUniversal:
             pass
         return count
     
-    # ============================================
-    # CONFIGURACIÓN DEL BINDER
-    # ============================================
+    # Configurar binder
     def configurar_binder(self, ruta_coleccion, nombre_coleccion, total_items):
         """Ventana para configurar el nuevo binder"""
         config_window = tk.Toplevel(self.root)
@@ -953,25 +941,6 @@ class BinderUniversal:
 4,Charmander,Fire
 5,Charmeleon,Fire
 6,Charizard,Fire
-7,Squirtle,Water
-8,Wartortle,Water
-9,Blastoise,Water
-10,Caterpie,Bug
-11,Metapod,Bug
-12,Butterfree,Bug
-13,Weedle,Bug
-14,Kakuna,Bug
-15,Beedrill,Bug
-16,Pidgey,Normal
-17,Pidgeotto,Normal
-18,Pidgeot,Normal
-19,Rattata,Normal
-20,Raticate,Normal
-21,Spearow,Normal
-22,Fearow,Normal
-23,Ekans,Poison
-24,Arbok,Poison
-25,Pikachu,Electric
 """
         with open(os.path.join(ejemplo_path, "coleccion.csv"), 'w', encoding='utf-8') as f:
             f.write(csv_content)
@@ -979,9 +948,7 @@ class BinderUniversal:
         messagebox.showinfo("Creada", "Colección de ejemplo creada")
         self.show_colecciones_disponibles()
     
-    # ============================================
-    # INTERFAZ PRINCIPAL DEL BINDER
-    # ============================================
+    # Interfaz principal del binder
     def create_main_interface(self):
         """Interfaz principal del binder"""
         for widget in self.root.winfo_children():
@@ -1105,6 +1072,9 @@ class BinderUniversal:
             width=40
         )
         self.search_combo.pack(side="left", padx=(0, 8))
+        
+        self.search_combo.bind('<Return>', lambda event: self.find_position())
+        
         self.setup_autocomplete()
         
         btn_frame = tk.Frame(search_frame, bg="#191A1B")
@@ -1254,9 +1224,7 @@ class BinderUniversal:
         if self.guardar_progreso():
             messagebox.showinfo("Guardado", "Progreso guardado exitosamente")
     
-    # ============================================
-    # MÉTODOS DE FUNCIONAMIENTO
-    # ============================================
+    # Métodos de funcionamiento
     def setup_autocomplete(self):
         """Configura autocompletado"""
         nombres = []
