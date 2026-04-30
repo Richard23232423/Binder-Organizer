@@ -274,7 +274,7 @@ class BinderUniversal:
             bg="#27ae60",
             fg="white",
             font=("Arial", 10),
-            padx=15,
+            padx=5,
             pady=5
         ).pack(side="left", padx=5)
         
